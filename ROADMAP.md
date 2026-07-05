@@ -12,15 +12,15 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 1 — Database layer
 
-- [ ] Schema creation + `schema_version` in settings; simple migration runner (v1 just creates tables)
-- [ ] Seed default categories on first launch
-- [ ] Repository functions:
-  - [ ] `insertExpense`, `updateExpense`, `deleteExpense`
-  - [ ] `getExpensesForMonth(yyyyMm)` sorted newest-first
-  - [ ] `getCategorySummary(startDate, endDate)` → `{categoryId, name, totalCents}[]`
-  - [ ] `listCategories` (by sort_order), `addCategory`, `renameCategory`, `reorderCategories`, `deleteCategory` (fails if in use), `categoryHasExpenses`
-  - [ ] settings get/set
-- [ ] Smoke test on device: insert a few rows via a temporary debug button, read them back
+- [x] Schema creation + `schema_version` in settings; simple migration runner (v1 just creates tables)
+- [x] Seed default categories on first launch
+- [x] Repository functions:
+  - [x] `insertExpense`, `updateExpense`, `deleteExpense`
+  - [x] `getExpensesForMonth(yyyyMm)` sorted newest-first
+  - [x] `getCategorySummary(startDate, endDate)` → `{categoryId, name, totalCents}[]`
+  - [x] `listCategories` (by sort_order), `addCategory`, `renameCategory`, `reorderCategories`, `deleteCategory` (fails if in use), `categoryHasExpenses`
+  - [x] settings get/set
+- [x] Smoke test on device: insert a few rows via a temporary debug button, read them back
 
 ## Phase 2 — Domain logic (pure, fully unit-tested)
 
