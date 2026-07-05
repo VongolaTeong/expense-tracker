@@ -188,7 +188,7 @@ describe('parseCsv', () => {
 // ── Round-trip: the phase gate ───────────────────────────────────────────────
 
 describe('round-trip (export → parse → export)', () => {
-  // Simulates the Phase 8 importer against an empty DB: recreate categories
+  // Simulates services/importer.ts against an empty DB: recreate categories
   // from names (fresh ids), then rebuild expenses from parsed rows.
   function importIntoEmptyDb(rows: CsvExpenseRow[]): {
     expenses: Expense[];

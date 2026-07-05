@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { deleteAllExpenses, seedTestExpenses } from '../db/devSeed';
 import {
   deleteBackup,
   exportAndShare,
@@ -77,6 +78,39 @@ export function SettingsScreen({ visible, onClose }: Props) {
     }
   };
 
+  // DEV-only (see __DEV__ section below): performance sanity tooling.
+  const onSeed = async () => {
+    setBusy(true);
+    try {
+      const startedAt = Date.now();
+      await seedTestExpenses(5000);
+      Alert.alert('Seeded', `5,000 expenses in ${((Date.now() - startedAt) / 1000).toFixed(1)}s.`);
+    } catch (err) {
+      Alert.alert('Seed failed', errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onWipe = () => {
+    Alert.alert('Wipe ALL expenses?', 'Dev tool — removes every expense. Categories stay.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Wipe',
+        style: 'destructive',
+        onPress: () => {
+          void (async () => {
+            try {
+              await deleteAllExpenses();
+            } catch (err) {
+              Alert.alert('Wipe failed', errorMessage(err));
+            }
+          })();
+        },
+      },
+    ]);
+  };
+
   const onShareBackup = async (backup: BackupFileInfo) => {
     try {
       await shareBackup(backup.uri);
@@ -132,6 +166,30 @@ export function SettingsScreen({ visible, onClose }: Props) {
               <Text style={styles.actionText}>Import CSV</Text>
             </Pressable>
           </View>
+
+          {__DEV__ ? (
+            <>
+              <Text style={styles.sectionTitle}>Developer</Text>
+              <View style={styles.actions}>
+                <Pressable
+                  onPress={() => void onSeed()}
+                  disabled={busy}
+                  style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
+                >
+                  <Ionicons name="flask-outline" size={20} color="#2563eb" />
+                  <Text style={styles.actionText}>Seed 5,000</Text>
+                </Pressable>
+                <Pressable
+                  onPress={onWipe}
+                  disabled={busy}
+                  style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                  <Text style={[styles.actionText, styles.dangerText]}>Wipe expenses</Text>
+                </Pressable>
+              </View>
+            </>
+          ) : null}
 
           <Text style={styles.sectionTitle}>Backups</Text>
           <Text style={styles.sectionHint}>
@@ -220,6 +278,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  dangerText: {
+    color: '#dc2626',
   },
   sectionTitle: {
     fontSize: 15,

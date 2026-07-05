@@ -14,7 +14,7 @@ import type { Category, Expense } from '../domain/types';
 
 export const CSV_HEADER = 'id,date,category,note,amount';
 
-/** One validated data row; the importer (Phase 8) maps these into the DB. */
+/** One validated data row; services/importer.ts maps these into the DB. */
 export interface CsvExpenseRow {
   id: string;
   /** YYYY-MM-DD, calendar-validated. */

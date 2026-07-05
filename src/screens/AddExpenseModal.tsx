@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -110,6 +111,9 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
       } else {
         await insertExpense(input);
       }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => undefined // feedback is best-effort
+      );
       onClose();
     } catch (err) {
       setError(errorMessage(err));
@@ -243,6 +247,9 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
                 keyboardType="decimal-pad"
                 value={amountText}
                 onChangeText={setAmountText}
+                // Autofocus right after the category pick (add flow only);
+                // edit mode opens for review, not immediate typing.
+                autoFocus={!editing}
               />
               {amountErrorText ? (
                 <Text style={styles.amountError}>{amountErrorText}</Text>
