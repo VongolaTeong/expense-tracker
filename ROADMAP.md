@@ -4,11 +4,11 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 0 — Project setup
 
-- [ ] `npx create-expo-app` with TypeScript template, strict mode on
-- [ ] Install deps: expo-sqlite, expo-file-system, expo-sharing, expo-document-picker, react-navigation (bottom tabs), react-native-gifted-charts, jest + ts-jest
-- [ ] Folder structure per CLAUDE.md (`src/db`, `src/services`, `src/domain`, `src/screens`, `src/components`, `src/tests`)
-- [ ] Jest configured so `domain/` and `services/csv.ts` tests run in plain Node (no Expo runtime)
-- [ ] App boots to a placeholder screen on device/simulator
+- [x] `npx create-expo-app` with TypeScript template, strict mode on
+- [x] Install deps: expo-sqlite, expo-file-system, expo-sharing, expo-document-picker, react-navigation (bottom tabs), react-native-gifted-charts, jest + ts-jest
+- [x] Folder structure per CLAUDE.md (`src/db`, `src/services`, `src/domain`, `src/screens`, `src/components`, `src/tests`)
+- [x] Jest configured so `domain/` and `services/csv.ts` tests run in plain Node (no Expo runtime)
+- [x] App boots to a placeholder screen on device/simulator
 
 ## Phase 1 — Database layer
 
