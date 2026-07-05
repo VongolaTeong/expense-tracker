@@ -16,10 +16,12 @@ import {
 } from 'react-native';
 import { listCategories } from '../db/categories';
 import { deleteExpense, insertExpense, updateExpense } from '../db/expenses';
+import { subscribeDataChanged } from '../db/notifier';
 import { dayLabel, todayIso } from '../domain/dates';
 import { formatAmount, parseAmountInput } from '../domain/money';
 import type { AmountParseError } from '../domain/money';
 import type { Category, Expense } from '../domain/types';
+import { CategoryManager } from './CategoryManager';
 
 interface Props {
   visible: boolean;
@@ -28,7 +30,7 @@ interface Props {
   editing?: Expense;
 }
 
-type Step = 'category' | 'details';
+type Step = 'category' | 'details' | 'manage';
 
 const AMOUNT_ERROR_TEXT: Record<AmountParseError, string | null> = {
   empty: null, // nothing typed yet — just keep save disabled
@@ -75,18 +77,30 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
       .catch((err: unknown) => setError(errorMessage(err)));
   }, [visible, editing]);
 
+  // Keep the picker in sync with Category Manager changes while open.
+  useEffect(() => {
+    if (!visible) return;
+    return subscribeDataChanged(() => {
+      listCategories()
+        .then(setCategories)
+        .catch((err: unknown) => setError(errorMessage(err)));
+    });
+  }, [visible]);
+
   const parsed = parseAmountInput(amountText);
   const amountValid = parsed.ok && parsed.cents > 0;
   const amountErrorText = parsed.ok ? null : AMOUNT_ERROR_TEXT[parsed.error];
-  const canSave = amountValid && categoryId !== null && !busy;
+  // Requiring the id to resolve against the *current* list guards the edge
+  // where the picked category was deleted from the manager mid-flow.
   const selectedCategory = categories.find((c) => c.id === categoryId);
+  const canSave = amountValid && selectedCategory !== undefined && !busy;
 
   const save = async () => {
-    if (!canSave || categoryId === null || !parsed.ok) return;
+    if (!canSave || selectedCategory === undefined || !parsed.ok) return;
     setBusy(true);
     try {
       const input = {
-        categoryId,
+        categoryId: selectedCategory.id,
         note: note.trim(),
         amountCents: parsed.cents,
         spentOn,
@@ -143,22 +157,39 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
     Number(spentOn.slice(8, 10))
   );
 
+  const title =
+    step === 'manage' ? 'Categories' : editing ? 'Edit Expense' : 'Add Expense';
+  const requestClose = step === 'manage' ? () => setStep('category') : onClose;
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={requestClose}>
       <KeyboardAvoidingView
         style={styles.backdrop}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>{editing ? 'Edit Expense' : 'Add Expense'}</Text>
+            <View style={styles.headerLeft}>
+              {step === 'manage' ? (
+                <Pressable
+                  onPress={() => setStep('category')}
+                  hitSlop={12}
+                  accessibilityLabel="Back to category picker"
+                >
+                  <Ionicons name="chevron-back" size={24} color="#2563eb" />
+                </Pressable>
+              ) : null}
+              <Text style={styles.title}>{title}</Text>
+            </View>
             <Pressable onPress={onClose} hitSlop={12} accessibilityLabel="Close">
               <Ionicons name="close" size={24} color="#6b7280" />
             </Pressable>
           </View>
           {error ? <Text style={styles.errorBanner}>{error}</Text> : null}
 
-          {step === 'category' ? (
+          {step === 'manage' ? (
+            <CategoryManager />
+          ) : step === 'category' ? (
             <FlatList
               data={categories}
               keyExtractor={(item) => item.id}
@@ -175,8 +206,10 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
                 </Pressable>
               )}
               ListFooterComponent={
-                // Dead link until the Category Manager arrives in Phase 6.
-                <Pressable style={styles.categoryRow} onPress={() => undefined}>
+                <Pressable
+                  style={({ pressed }) => [styles.categoryRow, pressed && styles.pressed]}
+                  onPress={() => setStep('manage')}
+                >
                   <Text style={styles.addEditEntry}>＋ Add / Edit</Text>
                 </Pressable>
               }
@@ -273,6 +306,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 10,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   title: {
     fontSize: 18,
