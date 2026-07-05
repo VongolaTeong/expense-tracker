@@ -55,20 +55,20 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 6 — Category Manager
 
-- [ ] Screen reachable from Add flow's tail item
-- [ ] Add category (unique, non-empty, case-insensitive check)
-- [ ] Rename inline
-- [ ] Reorder (drag, or up/down buttons if drag fights you)
-- [ ] Delete disabled when category has expenses
-- [ ] Category picker order updates immediately after changes
+- [x] Screen reachable from Add flow's tail item
+- [x] Add category (unique, non-empty, case-insensitive check)
+- [x] Rename inline
+- [x] Reorder (drag, or up/down buttons if drag fights you)
+- [x] Delete disabled when category has expenses
+- [x] Category picker order updates immediately after changes
 
 ## Phase 7 — Charts tab
 
-- [ ] Period selector (Week / Month / Year) + prev/next pager, future blocked
-- [ ] `getCategorySummary` wired to selected period bounds from `domain/dates.ts`
-- [ ] Pie chart with stable per-category colors
-- [ ] Legend list sorted by amount desc with amounts + percentages; zero-spend categories omitted
-- [ ] Empty state for periods with no data
+- [x] Period selector (Week / Month / Year) + prev/next pager, future blocked
+- [x] `getCategorySummary` wired to selected period bounds from `domain/dates.ts`
+- [x] Pie chart with stable per-category colors
+- [x] Legend list sorted by amount desc with amounts + percentages; zero-spend categories omitted
+- [x] Empty state for periods with no data
 
 ## Phase 8 — Export / Import / Auto-backup
 
