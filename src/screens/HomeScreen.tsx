@@ -1,17 +1,19 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DateSeparator } from '../components/DateSeparator';
 import { EmptyState } from '../components/EmptyState';
 import { ExpenseRow } from '../components/ExpenseRow';
 import { MonthSelector } from '../components/MonthSelector';
 import { listCategories } from '../db/categories';
-import { getExpensesForMonth, insertExpense } from '../db/expenses';
-import { monthBounds, monthKeyOf, todayIso } from '../domain/dates';
+import { getExpensesForMonth } from '../db/expenses';
+import { subscribeDataChanged } from '../db/notifier';
+import { monthKeyOf, todayIso } from '../domain/dates';
 import { groupExpensesByDay } from '../domain/grouping';
 import { formatAmount } from '../domain/money';
 import type { Category, Expense } from '../domain/types';
+import { AddExpenseModal } from './AddExpenseModal';
 
 interface DaySectionData {
   key: string;
@@ -24,6 +26,7 @@ export function HomeScreen() {
   const [monthKey, setMonthKey] = useState(() => monthKeyOf(todayIso()));
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [editing, setEditing] = useState<Expense | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -40,12 +43,15 @@ export function HomeScreen() {
     }
   }, [monthKey]);
 
-  // Refetch whenever the tab regains focus (v1 refresh strategy).
+  // Refetch on tab focus…
   useFocusEffect(
     useCallback(() => {
       void load();
     }, [load])
   );
+
+  // …and immediately after any DB write (add modal, imports, etc.).
+  useEffect(() => subscribeDataChanged(() => void load()), [load]);
 
   const nameById = useMemo(
     () => new Map(categories.map((c) => [c.id, c.name])),
@@ -67,30 +73,6 @@ export function HomeScreen() {
     [expenses]
   );
 
-  // TEMP (Phase 4 only): seeds a random expense into the selected month so
-  // the list/refresh behavior can be exercised before the Add flow exists.
-  // Removed in Phase 5.
-  const insertSample = async () => {
-    try {
-      const cats = categories.length > 0 ? categories : await listCategories();
-      const today = todayIso();
-      const { end } = monthBounds(monthKey);
-      const lastAllowed = end <= today ? end : today;
-      const maxDay = Number(lastAllowed.slice(8, 10));
-      const day = 1 + Math.floor(Math.random() * maxDay);
-      const cat = cats[Math.floor(Math.random() * cats.length)];
-      await insertExpense({
-        categoryId: cat.id,
-        note: Math.random() < 0.5 ? `sample ${Math.floor(Math.random() * 100)}` : '',
-        amountCents: 100 + Math.floor(Math.random() * 4900),
-        spentOn: `${monthKey}-${String(day).padStart(2, '0')}`,
-      });
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    }
-  };
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -99,16 +81,10 @@ export function HomeScreen() {
           <Text style={styles.totalLabel}>Total</Text>
           <Text style={styles.totalValue}>{formatAmount(totalCents)}</Text>
         </View>
-        <Pressable onPress={() => void insertSample()} style={styles.tempButton}>
-          <Text style={styles.tempButtonText}>＋ sample (temp)</Text>
-        </Pressable>
       </View>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {sections.length === 0 ? (
-        <EmptyState
-          title="No expenses this month"
-          hint="Tap + to add one (coming in Phase 5)"
-        />
+        <EmptyState title="No expenses this month" hint="Tap + to add one" />
       ) : (
         <SectionList
           sections={sections}
@@ -117,6 +93,7 @@ export function HomeScreen() {
             <ExpenseRow
               expense={item}
               categoryName={nameById.get(item.categoryId) ?? '?'}
+              onPress={() => setEditing(item)}
             />
           )}
           renderSectionHeader={({ section }) => (
@@ -125,6 +102,11 @@ export function HomeScreen() {
           contentContainerStyle={styles.listContent}
         />
       )}
+      <AddExpenseModal
+        visible={editing !== null}
+        editing={editing ?? undefined}
+        onClose={() => setEditing(null)}
+      />
     </View>
   );
 }
@@ -154,14 +136,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
     color: '#111',
-  },
-  tempButton: {
-    alignSelf: 'center',
-    marginTop: 6,
-  },
-  tempButtonText: {
-    fontSize: 12,
-    color: '#2563eb',
   },
   listContent: {
     paddingBottom: 24,

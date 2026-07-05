@@ -48,10 +48,10 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 5 — Add Expense flow
 
-- [ ] Modal step 1: category picker in sort order, "＋ Add / Edit" tail item (dead link for now)
-- [ ] Modal step 2: note input, amount input (numeric keyboard, live validation via `parseAmountInput`), date chip → date picker, save disabled until valid amount
-- [ ] Save inserts and dismisses; Home reflects it
-- [ ] Tap an expense on Home → same modal pre-filled → update / delete
+- [x] Modal step 1: category picker in sort order, "＋ Add / Edit" tail item (dead link for now)
+- [x] Modal step 2: note input, amount input (numeric keyboard, live validation via `parseAmountInput`), date chip → date picker, save disabled until valid amount
+- [x] Save inserts and dismisses; Home reflects it
+- [x] Tap an expense on Home → same modal pre-filled → update / delete
 
 ## Phase 6 — Category Manager
 

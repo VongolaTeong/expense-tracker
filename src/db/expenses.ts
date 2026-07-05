@@ -1,5 +1,6 @@
 import type { CategorySummary, Expense, ExpenseInput } from '../domain/types';
 import { getDatabase, newId, nowIso } from './database';
+import { notifyDataChanged } from './notifier';
 
 interface ExpenseRow {
   id: string;
@@ -41,6 +42,7 @@ export async function insertExpense(input: ExpenseInput): Promise<Expense> {
       expense.createdAt,
     ]
   );
+  notifyDataChanged();
   return expense;
 }
 
@@ -52,11 +54,13 @@ export async function updateExpense(id: string, input: ExpenseInput): Promise<vo
      WHERE id = ?`,
     [input.categoryId, input.note.trim(), input.amountCents, input.spentOn, id]
   );
+  notifyDataChanged();
 }
 
 export async function deleteExpense(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM expenses WHERE id = ?', [id]);
+  notifyDataChanged();
 }
 
 /**

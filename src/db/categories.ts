@@ -1,5 +1,6 @@
 import type { Category } from '../domain/types';
 import { getDatabase, newId, nowIso } from './database';
+import { notifyDataChanged } from './notifier';
 
 interface CategoryRow {
   id: string;
@@ -50,6 +51,7 @@ export async function addCategory(name: string): Promise<Category> {
     'INSERT INTO categories (id, name, sort_order, created_at) VALUES (?, ?, ?, ?)',
     [category.id, category.name, category.sortOrder, category.createdAt]
   );
+  notifyDataChanged();
   return category;
 }
 
@@ -62,6 +64,7 @@ export async function renameCategory(id: string, newName: string): Promise<void>
     throw new Error(`Category "${trimmed}" already exists`);
   }
   await db.runAsync('UPDATE categories SET name = ? WHERE id = ?', [trimmed, id]);
+  notifyDataChanged();
 }
 
 /** Rewrites sort_order to match the given full list of category ids. */
@@ -75,6 +78,7 @@ export async function reorderCategories(orderedIds: string[]): Promise<void> {
       ]);
     }
   });
+  notifyDataChanged();
 }
 
 export async function categoryHasExpenses(id: string): Promise<boolean> {
@@ -99,6 +103,7 @@ export async function deleteCategory(id: string): Promise<void> {
     }
     await txn.runAsync('DELETE FROM categories WHERE id = ?', [id]);
   });
+  notifyDataChanged();
 }
 
 async function nameTaken(name: string, excludeId?: string): Promise<boolean> {
