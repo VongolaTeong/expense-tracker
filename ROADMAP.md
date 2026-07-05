@@ -38,13 +38,13 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 4 — Home tab
 
-- [ ] Bottom tab navigator: Home / Charts + custom center Add button (button opens a placeholder modal for now)
-- [ ] Month selector header with chevrons, future months blocked
-- [ ] Sectioned list with date separators, newest first
-- [ ] Row rendering: note-or-category-name primary text, amount right-aligned, category as secondary text when note exists
-- [ ] Month total in header
-- [ ] Empty state
-- [ ] Refreshes when data changes (refetch on focus is fine for v1)
+- [x] Bottom tab navigator: Home / Charts + custom center Add button (button opens a placeholder modal for now)
+- [x] Month selector header with chevrons, future months blocked
+- [x] Sectioned list with date separators, newest first
+- [x] Row rendering: note-or-category-name primary text, amount right-aligned, category as secondary text when note exists
+- [x] Month total in header
+- [x] Empty state
+- [x] Refreshes when data changes (refetch on focus is fine for v1)
 
 ## Phase 5 — Add Expense flow
 
