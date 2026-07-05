@@ -79,6 +79,64 @@ export async function getExpensesForMonth(yyyyMm: string): Promise<Expense[]> {
   return rows.map(toExpense);
 }
 
+/** Every expense, unordered — export sorts canonically itself. */
+export async function getAllExpenses(): Promise<Expense[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<ExpenseRow>(
+    'SELECT id, category_id, note, amount_cents, spent_on, created_at FROM expenses'
+  );
+  return rows.map(toExpense);
+}
+
+export async function listExpenseIds(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ id: string }>('SELECT id FROM expenses');
+  return rows.map((row) => row.id);
+}
+
+export interface UpsertExpenseItem {
+  id: string;
+  categoryId: string;
+  note: string;
+  amountCents: number;
+  spentOn: string;
+}
+
+/**
+ * Import-only bulk upsert: existing ids are updated (created_at preserved),
+ * unknown ids inserted with a fresh created_at. Runs in one exclusive
+ * transaction (all-or-nothing) and emits a single change notification.
+ */
+export async function bulkUpsertExpenses(
+  items: UpsertExpenseItem[]
+): Promise<{ inserted: number; updated: number }> {
+  const db = await getDatabase();
+  let inserted = 0;
+  let updated = 0;
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    for (const item of items) {
+      const result = await txn.runAsync(
+        `UPDATE expenses
+         SET category_id = ?, note = ?, amount_cents = ?, spent_on = ?
+         WHERE id = ?`,
+        [item.categoryId, item.note, item.amountCents, item.spentOn, item.id]
+      );
+      if (result.changes === 0) {
+        await txn.runAsync(
+          `INSERT INTO expenses (id, category_id, note, amount_cents, spent_on, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [item.id, item.categoryId, item.note, item.amountCents, item.spentOn, nowIso()]
+        );
+        inserted += 1;
+      } else {
+        updated += 1;
+      }
+    }
+  });
+  if (items.length > 0) notifyDataChanged();
+  return { inserted, updated };
+}
+
 /**
  * Per-category totals for spent_on in [startDate, endDate] (inclusive ISO
  * dates), largest first. Categories with no spend in the period are omitted.

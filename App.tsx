@@ -2,12 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AppState, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AddExpenseModal } from './src/screens/AddExpenseModal';
 import { ChartsScreen } from './src/screens/ChartsScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
+import { maybeRunMonthlyBackup } from './src/services/backup';
 
 type RootTabParamList = {
   Home: undefined;
@@ -38,6 +39,20 @@ function AddButton({ onPress }: { onPress: () => void }) {
 
 export default function App() {
   const [addVisible, setAddVisible] = useState(false);
+
+  // Lazy monthly backup: check on launch and on every foreground resume.
+  useEffect(() => {
+    const check = () => {
+      maybeRunMonthlyBackup().catch((err: unknown) => {
+        console.warn('Monthly backup failed', err);
+      });
+    };
+    check();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') check();
+    });
+    return () => subscription.remove();
+  }, []);
 
   return (
     <SafeAreaProvider>

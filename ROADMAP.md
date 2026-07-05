@@ -72,11 +72,11 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 8 — Export / Import / Auto-backup
 
-- [ ] Manual export: full CSV → temp file → share sheet
-- [ ] Import: document picker → parse → idempotent upsert by id → auto-create unknown categories → summary alert ("Imported X, updated Y, skipped Z")
-- [ ] Import-twice test: second import of the same file changes nothing
-- [ ] Auto-backup: on launch/foreground, if current `YYYY-MM` ≠ `last_backup_month`, write `backups/backup-YYYY-MM.csv`, update setting
-- [ ] Minimal settings/gear screen: list backup files with share + delete, plus the Import and Export buttons
+- [x] Manual export: full CSV → temp file → share sheet
+- [x] Import: document picker → parse → idempotent upsert by id → auto-create unknown categories → summary alert ("Imported X, updated Y, skipped Z")
+- [x] Import-twice test: second import of the same file changes nothing
+- [x] Auto-backup: on launch/foreground, if current `YYYY-MM` ≠ `last_backup_month`, write `backups/backup-YYYY-MM.csv`, update setting
+- [x] Minimal settings/gear screen: list backup files with share + delete, plus the Import and Export buttons
 
 ## Phase 9 — Polish & hardening
 
