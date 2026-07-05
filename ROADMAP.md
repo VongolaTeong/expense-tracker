@@ -31,10 +31,10 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 3 — CSV service (pure, fully unit-tested)
 
-- [ ] RFC 4180 serializer + parser (handle quotes, commas, newlines in notes; CRLF/LF tolerance)
-- [ ] `exportToCsv(expenses, categories) → string`
-- [ ] `parseCsv(string) → {validRows, skippedCount}` with per-row validation (date format, amount, header check)
-- [ ] **Round-trip test: export → parse → export produces identical output** (this test gates the phase)
+- [x] RFC 4180 serializer + parser (handle quotes, commas, newlines in notes; CRLF/LF tolerance)
+- [x] `exportToCsv(expenses, categories) → string`
+- [x] `parseCsv(string) → {validRows, skippedCount}` with per-row validation (date format, amount, header check)
+- [x] **Round-trip test: export → parse → export produces identical output** (this test gates the phase)
 
 ## Phase 4 — Home tab
 
