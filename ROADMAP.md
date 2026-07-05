@@ -24,10 +24,10 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 2 — Domain logic (pure, fully unit-tested)
 
-- [ ] `domain/money.ts`: `parseAmountInput(str) → cents | error`, `formatAmount(cents)`
-- [ ] `domain/dates.ts`: today ISO, month bounds, ISO-week bounds (Mon start), year bounds, prev/next period, "is future period", day-separator labels, month/week/year display labels
-- [ ] `domain/grouping.ts`: group expense list into `[{dayLabel, items[]}]` sections
-- [ ] Unit tests for all of the above, including edge cases: year boundaries, week 52/53, leap day, `"12."`/`"12.345"`/`""` amount inputs
+- [x] `domain/money.ts`: `parseAmountInput(str) → cents | error`, `formatAmount(cents)`
+- [x] `domain/dates.ts`: today ISO, month bounds, ISO-week bounds (Mon start), year bounds, prev/next period, "is future period", day-separator labels, month/week/year display labels
+- [x] `domain/grouping.ts`: group expense list into `[{dayLabel, items[]}]` sections
+- [x] Unit tests for all of the above, including edge cases: year boundaries, week 52/53, leap day, `"12."`/`"12.345"`/`""` amount inputs
 
 ## Phase 3 — CSV service (pure, fully unit-tested)
 
