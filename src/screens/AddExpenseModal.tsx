@@ -8,7 +8,6 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -167,10 +166,12 @@ export function AddExpenseModal({ visible, onClose, editing }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={requestClose}>
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/*
+        behavior="padding" on BOTH platforms: standalone Android builds are
+        edge-to-edge (mandatory since targetSdk 35), where the window is NOT
+        resized for the keyboard — the sheet must pad itself up.
+      */}
+      <KeyboardAvoidingView style={styles.backdrop} behavior="padding">
         <View style={styles.sheet}>
           <View style={styles.header}>
             <View style={styles.headerLeft}>

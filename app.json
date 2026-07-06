@@ -10,6 +10,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.teongkarchun.expensetracker",
       "adaptiveIcon": {
         "backgroundColor": "#2563eb",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,6 +34,11 @@
           "backgroundColor": "#2563eb"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e2dbd190-fda0-49bf-b8ce-a01a64dc4f21"
+      }
+    }
   }
 }

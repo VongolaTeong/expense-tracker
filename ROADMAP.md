@@ -80,12 +80,12 @@ Each phase ends in a runnable, testable state. Don't start a phase until the pre
 
 ## Phase 9 — Polish & hardening
 
-- [ ] Fresh-install → import backup → verify Home and Charts match pre-wipe state (manual E2E)
-- [ ] Keyboard avoidance in Add modal; amount field autofocus after category pick
-- [ ] Haptic/visual feedback on save
-- [ ] Performance sanity check with ~5,000 seeded expenses (FlatList/SectionList virtualization behaving)
-- [ ] App icon + splash
-- [ ] Final `npm test` green, no TS errors, dead code removed
+- [x] Fresh-install → import backup → verify Home and Charts match pre-wipe state (manual E2E)
+- [x] Keyboard avoidance in Add modal; amount field autofocus after category pick
+- [x] Haptic/visual feedback on save
+- [x] Performance sanity check with ~5,000 seeded expenses (FlatList/SectionList virtualization behaving)
+- [x] App icon + splash
+- [x] Final `npm test` green, no TS errors, dead code removed
 
 ## Deferred ideas (do not build now)
 
